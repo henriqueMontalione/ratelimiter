@@ -1,4 +1,4 @@
-.PHONY: up down run build test
+.PHONY: up down run build test lint
 
 up:
 	docker compose up --build
@@ -14,3 +14,7 @@ build:
 
 test:
 	go test ./... -v
+
+lint:
+	go vet ./...
+	go build ./...

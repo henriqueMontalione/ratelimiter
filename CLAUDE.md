@@ -69,6 +69,7 @@ you have reached the maximum number of requests or actions allowed within a cert
 - [ ] `context.Context` passado em todas as operações de I/O
 - [ ] Limites de pacote respeitados (limiter sem HTTP, middleware sem regra de negócio)
 - [ ] Testes adicionados ou atualizados para a feature
+- [ ] `make lint` sem erros (`go vet ./...` + `go build ./...`)
 - [ ] `go mod tidy` rodado
 - [ ] `make test` passou sem erros
 
