@@ -21,7 +21,8 @@ func RateLimit(rl *limiter.RateLimiter) gin.HandlerFunc {
 		}
 
 		if !allowed {
-			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"message": errMessage})
+			c.AbortWithStatus(http.StatusTooManyRequests)
+			c.Writer.WriteString(errMessage)
 			return
 		}
 
