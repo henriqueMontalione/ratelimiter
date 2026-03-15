@@ -154,20 +154,19 @@ func TestBlockPersists(t *testing.T) {
 
 func TestCounterResetsAfterWindow(t *testing.T) {
 	client := newTestClient(t)
+	// Use limit=2, send exactly 2 requests — at limit but no block triggered
 	rl := newTestLimiter(client, 2, 10, 60, nil)
 	ctx := context.Background()
 
-	// exhaust limit
-	rl.Allow(ctx, "5.5.5.5", "")
 	rl.Allow(ctx, "5.5.5.5", "")
 	allowed, err := rl.Allow(ctx, "5.5.5.5", "")
 	require.NoError(t, err)
-	assert.False(t, allowed)
+	assert.True(t, allowed, "second request should be at limit but still allowed")
 
-	// wait for window (1s) + block to expire
+	// wait for the 1s counter window to expire
 	time.Sleep(1100 * time.Millisecond)
 
-	// counter and block should have expired — request allowed again
+	// counter expired — window reset, requests allowed again from zero
 	allowed, err = rl.Allow(ctx, "5.5.5.5", "")
 	require.NoError(t, err)
 	assert.True(t, allowed, "counter should reset after 1s window")
