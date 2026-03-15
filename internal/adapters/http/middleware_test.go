@@ -90,8 +90,8 @@ func TestMiddleware_ExactErrorMessage(t *testing.T) {
 	newRouter(store).ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusTooManyRequests, w.Code)
-	assert.JSONEq(t,
-		`{"message":"you have reached the maximum number of requests or actions allowed within a certain time frame"}`,
+	assert.Equal(t,
+		"you have reached the maximum number of requests or actions allowed within a certain time frame",
 		w.Body.String(),
 	)
 }
