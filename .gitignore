@@ -1,0 +1,12 @@
+# Binary
+ratelimiter
+bin/
+
+# Environment
+.env
+
+# Go
+vendor/
+
+# OS
+.DS_Store
