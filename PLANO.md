@@ -84,15 +84,22 @@ Tokens individuais são configurados via `TOKEN_LIMITS` no formato `token:limite
 
 ---
 
-## Estrutura de pacotes
+## Arquitetura Hexagonal
+
+O projeto segue o padrão Ports & Adapters (Hexagonal Architecture):
+
+- **Core (domínio)**: `internal/limiter/` — lógica pura, sem dependências externas
+- **Output Port**: `internal/ports/store.go` — contrato que o core exige do mundo externo
+- **Secondary Adapter**: `internal/adapters/redis/` — implementa o port usando Redis
+- **Primary Adapter**: `internal/adapters/http/` — expõe o core via HTTP (Gin middleware)
 
 ```
-cmd/server/main.go          → entry point, wiring de dependências
-internal/config/config.go   → struct Config, parse via caarlos0/env
-internal/store/store.go     → interface Store
-internal/store/redis.go     → RedisStore
-internal/limiter/limiter.go → RateLimiter, método Allow
-internal/middleware/middleware.go → Gin middleware
-tests/ratelimiter_test.go   → testes de integração
-internal/limiter/limiter_test.go → testes unitários com mock
+cmd/server/main.go                  → entry point, wiring de dependências
+internal/config/config.go           → struct Config, parse via caarlos0/env
+internal/ports/store.go             → output port (interface Store)
+internal/adapters/redis/store.go    → secondary adapter (Redis)
+internal/adapters/http/middleware.go → primary adapter (Gin)
+internal/limiter/limiter.go         → core/domínio (RateLimiter, método Allow)
+internal/limiter/limiter_test.go    → testes unitários com mock do port
+tests/ratelimiter_test.go           → testes de integração
 ```

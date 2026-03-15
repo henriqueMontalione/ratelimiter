@@ -109,14 +109,25 @@ done
 curl -H "API_KEY: vip-key" http://localhost:8080/
 ```
 
+## Arquitetura
+
+O projeto segue **Hexagonal Architecture (Ports & Adapters)**:
+
+| Camada | Pacote | Responsabilidade |
+|---|---|---|
+| Core | `internal/limiter/` | Lógica de negócio pura |
+| Output Port | `internal/ports/` | Contratos que o core exige |
+| Secondary Adapter | `internal/adapters/redis/` | Implementa ports com Redis |
+| Primary Adapter | `internal/adapters/http/` | Expõe o core via HTTP (Gin) |
+
 ## Trocando o backend de persistência
 
-A interface `Store` desacopla a lógica de negócio do mecanismo de persistência.
+O output port `Store` desacopla o core do mecanismo de armazenamento.
 
 Para adicionar um novo backend (ex: in-memory):
 
-1. Crie `internal/store/memory.go`
-2. Implemente a interface `Store`:
+1. Crie `internal/adapters/memory/store.go`
+2. Implemente a interface definida em `internal/ports/store.go`:
 
 ```go
 type Store interface {
@@ -126,7 +137,7 @@ type Store interface {
 }
 ```
 
-3. Injete a nova implementação em `cmd/server/main.go`
+3. Injete o novo adapter em `cmd/server/main.go`
 
 ## Testes
 

@@ -35,15 +35,22 @@ Você está implementando um rate limiter HTTP em Go. Siga estas instruções à
 - Nomes que dispensam comentários
 - Siga Effective Go, Go Code Review Comments e Google Go Style Guide
 
-### Estrutura de pacotes — respeite os limites
+### Arquitetura Hexagonal — Ports & Adapters
+
 ```
-internal/config/     → leitura e parse de variáveis de ambiente
-internal/store/      → interface Store + implementações concretas
-internal/limiter/    → lógica de negócio pura, zero dependência HTTP
-internal/middleware/ → Gin middleware, chama limiter, responde HTTP
-cmd/server/          → entry point, montagem de dependências
-tests/               → testes de integração com Redis real
+internal/limiter/            → CORE: lógica de negócio pura, zero dependência externa
+internal/ports/              → OUTPUT PORT: interfaces que o core exige
+internal/adapters/redis/     → SECONDARY ADAPTER: implementa ports usando Redis
+internal/adapters/http/      → PRIMARY ADAPTER: expõe o core via HTTP (Gin)
+internal/config/             → configuração via variáveis de ambiente
+cmd/server/                  → entry point, wiring de todas as dependências
+tests/                       → testes de integração com Redis real
 ```
+
+Respeite os limites de cada camada:
+- `limiter/` não importa nada de `adapters/` nem pacotes HTTP
+- `ports/` não importa nada de `adapters/`
+- `adapters/http/` não contém regra de negócio — apenas tradução HTTP ↔ core
 
 ### Regra crítica de negócio
 Token presente no header `API_KEY` → ignora IP completamente. A precedência é absoluta.
